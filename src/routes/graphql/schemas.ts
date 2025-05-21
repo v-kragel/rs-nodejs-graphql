@@ -1,6 +1,8 @@
 import { Type } from '@fastify/type-provider-typebox';
 import { GraphQLObjectType, GraphQLSchema } from 'graphql';
 import { memberTypeQueries } from './modules/member-types/queries.js';
+import { postQueries } from './modules/posts/queries.js';
+import { postMutations } from './modules/posts/mutations.js';
 
 export const gqlResponseSchema = Type.Partial(
   Type.Object({
@@ -21,12 +23,19 @@ export const createGqlResponseSchema = {
   ),
 };
 
-export function buildSchema(prisma: any) {
+export function buildSchema() {
   return new GraphQLSchema({
     query: new GraphQLObjectType({
       name: 'Query',
       fields: {
-        ...memberTypeQueries(prisma),
+        ...memberTypeQueries,
+        ...postQueries,
+      },
+    }),
+    mutation: new GraphQLObjectType({
+      name: 'Mutation',
+      fields: {
+        ...postMutations,
       },
     }),
   });

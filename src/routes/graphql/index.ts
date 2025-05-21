@@ -4,7 +4,8 @@ import { graphql } from 'graphql';
 
 const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
   const { prisma } = fastify;
-  const schema = buildSchema(prisma);
+
+  const schema = buildSchema();
 
   fastify.route({
     url: '/',
@@ -22,6 +23,9 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         schema,
         source: query,
         variableValues: variables,
+        contextValue: {
+          prisma,
+        },
       });
 
       return result;
