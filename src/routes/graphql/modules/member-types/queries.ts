@@ -5,7 +5,8 @@ import { Context } from '../../context.js';
 export const memberTypeQueries = {
   memberTypes: {
     type: new GraphQLList(MemberType),
-    resolve: (_parent, _args, { prisma }: Context) => prisma.memberType.findMany(),
+    resolve: async (_parent, _args, { prisma }: Context) =>
+      await prisma.memberType.findMany(),
   },
   memberType: {
     type: MemberType,
@@ -14,7 +15,7 @@ export const memberTypeQueries = {
         type: new GraphQLNonNull(MemberTypeIdEnum),
       },
     },
-    resolve: (_parent: unknown, args: { id: string }, { prisma }: Context) =>
-      prisma.memberType.findUnique({ where: { id: args.id } }),
+    resolve: async (_parent: unknown, args: { id: string }, { prisma }: Context) =>
+      await prisma.memberType.findUnique({ where: { id: args.id } }),
   },
 };
