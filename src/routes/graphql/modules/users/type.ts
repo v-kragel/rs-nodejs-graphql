@@ -17,6 +17,20 @@ export interface User {
   balance: number;
 }
 
+export type Author = {
+  userSubscribedTo: {
+    subscriberId: string;
+    authorId: string;
+  }[];
+} & User;
+
+export type Subscription = {
+  subscribedToUser: {
+    subscriberId: string;
+    authorId: string;
+  }[];
+} & User;
+
 export const UserType = new GraphQLObjectType({
   name: 'User',
   fields: () => ({
@@ -25,27 +39,23 @@ export const UserType = new GraphQLObjectType({
     balance: { type: GraphQLFloat },
     posts: {
       type: new GraphQLList(PostType),
-      resolve: async (parent: User, _, { prisma }: Context) =>
-        await prisma.post.findMany({ where: { authorId: parent.id } }),
+      resolve: async (parent: User, _, { loaders }: Context) =>
+        await loaders.postsLoader.load(parent.id),
     },
     profile: {
       type: ProfileType,
-      resolve: async (parent: User, _, { prisma }: Context) =>
-        await prisma.profile.findUnique({ where: { userId: parent.id } }),
+      resolve: async (parent: User, _, { loaders }: Context) =>
+        await loaders.profilesLoader.load(parent.id),
     },
     userSubscribedTo: {
       type: new GraphQLList(UserType),
-      resolve: async (parent: User, _, { prisma }: Context) =>
-        await prisma.user.findMany({
-          where: { subscribedToUser: { some: { subscriberId: parent.id } } },
-        }),
+      resolve: async (parent: User, _, { loaders }: Context) =>
+        loaders.userToSubscribeLoader.load(parent.id),
     },
     subscribedToUser: {
       type: new GraphQLList(UserType),
-      resolve: async (parent: User, _, { prisma }: Context) =>
-        await prisma.user.findMany({
-          where: { userSubscribedTo: { some: { authorId: parent.id } } },
-        }),
+      resolve: async (parent: User, _, { loaders }: Context) =>
+        loaders.subscribedToUserLoader.load(parent.id),
     },
   }),
 });
