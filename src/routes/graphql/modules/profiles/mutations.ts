@@ -1,3 +1,4 @@
+import { GraphQLBoolean } from 'graphql';
 import { Context } from '../../context.js';
 import { UUIDType } from '../../types/uuid.js';
 import {
@@ -24,10 +25,16 @@ export const profileMutations = {
     },
   },
   deleteProfile: {
-    type: ProfileType,
+    type: GraphQLBoolean,
     args: { id: { type: UUIDType } },
     resolve: async (_parent, { id }, { prisma }: Context) => {
-      return await prisma.profile.delete({ where: { id } });
+      try {
+        await prisma.profile.delete({ where: { id } });
+      } catch {
+        return false;
+      }
+
+      return true;
     },
   },
 };

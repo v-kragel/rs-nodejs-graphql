@@ -1,3 +1,4 @@
+import { GraphQLBoolean } from 'graphql';
 import { Context } from '../../context.js';
 import { UUIDType } from '../../types/uuid.js';
 import {
@@ -25,10 +26,16 @@ export const postMutations = {
     },
   },
   deletePost: {
-    type: PostType,
+    type: GraphQLBoolean,
     args: { id: { type: UUIDType } },
     resolve: async (_parent, { id }: DeletePostRequest, { prisma }: Context) => {
-      return await prisma.post.delete({ where: { id } });
+      try {
+        await prisma.post.delete({ where: { id } });
+      } catch {
+        return false;
+      }
+
+      return true;
     },
   },
 };

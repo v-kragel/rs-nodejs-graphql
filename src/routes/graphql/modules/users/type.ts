@@ -81,3 +81,8 @@ export interface ChangeUserRequest {
     balance: number;
   };
 }
+
+export interface SubscribeToUserRequest {
+  userId: string;
+  authorId: string;
+}

@@ -1,3 +1,4 @@
+import { GraphQLBoolean } from 'graphql';
 import { Context } from '../../context.js';
 import { UUIDType } from '../../types/uuid.js';
 import {
@@ -5,6 +6,7 @@ import {
   ChangeUserRequest,
   CreateUserInputObjectType,
   CreateUserRequest,
+  SubscribeToUserRequest,
   UserType,
 } from './type.js';
 
@@ -24,10 +26,54 @@ export const userMutations = {
     },
   },
   deleteUser: {
-    type: UserType,
+    type: GraphQLBoolean,
     args: { id: { type: UUIDType } },
     resolve: async (_parent, { id }, { prisma }: Context) => {
-      return await prisma.user.delete({ where: { id } });
+      try {
+        await prisma.user.delete({ where: { id } });
+      } catch {
+        return false;
+      }
+
+      return true;
+    },
+  },
+  subscribeTo: {
+    type: GraphQLBoolean,
+    args: { userId: { type: UUIDType }, authorId: { type: UUIDType } },
+    resolve: async (
+      _parent,
+      { userId, authorId }: SubscribeToUserRequest,
+      { prisma }: Context,
+    ) => {
+      try {
+        await prisma.subscribersOnAuthors.create({
+          data: { subscriberId: userId, authorId },
+        });
+      } catch {
+        return false;
+      }
+
+      return true;
+    },
+  },
+  unsubscribeFrom: {
+    type: GraphQLBoolean,
+    args: { userId: { type: UUIDType }, authorId: { type: UUIDType } },
+    resolve: async (
+      _parent,
+      { userId, authorId }: SubscribeToUserRequest,
+      { prisma }: Context,
+    ) => {
+      try {
+        await prisma.subscribersOnAuthors.deleteMany({
+          where: { subscriberId: userId, authorId: authorId },
+        });
+      } catch {
+        return false;
+      }
+
+      return true;
     },
   },
 };
