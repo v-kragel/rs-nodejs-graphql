@@ -5,6 +5,8 @@ import { postQueries } from './modules/posts/queries.js';
 import { postMutations } from './modules/posts/mutations.js';
 import { profileQueries } from './modules/profiles/queries.js';
 import { profileMutations } from './modules/profiles/mutations.js';
+import { userQueries } from './modules/users/queries.js';
+import { userMutations } from './modules/users/mutations.js';
 
 export const gqlResponseSchema = Type.Partial(
   Type.Object({
@@ -33,6 +35,7 @@ export function buildSchema() {
         ...memberTypeQueries,
         ...postQueries,
         ...profileQueries,
+        ...userQueries,
       },
     }),
     mutation: new GraphQLObjectType({
@@ -40,6 +43,7 @@ export function buildSchema() {
       fields: {
         ...postMutations,
         ...profileMutations,
+        ...userMutations,
       },
     }),
   });
