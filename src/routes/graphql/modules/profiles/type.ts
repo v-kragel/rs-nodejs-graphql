@@ -6,7 +6,16 @@ import {
   GraphQLObjectType,
 } from 'graphql';
 import { UUIDType } from '../../types/uuid.js';
-import { MemberTypeIdEnum } from '../member-types/type.js';
+import { MemberType, MemberTypeIdEnum } from '../member-types/type.js';
+import { Context } from '../../context.js';
+
+export interface Profile {
+  id: string;
+  isMale: boolean;
+  yearOfBirth: number;
+  userId: string;
+  memberTypeId: string;
+}
 
 export const ProfileType = new GraphQLObjectType({
   name: 'Profile',
@@ -16,6 +25,11 @@ export const ProfileType = new GraphQLObjectType({
     yearOfBirth: { type: GraphQLInt },
     userId: { type: UUIDType },
     memberTypeId: { type: MemberTypeIdEnum },
+    memberType: {
+      type: MemberType,
+      resolve: async (parent: Profile, _args, { prisma }: Context) =>
+        await prisma.memberType.findUnique({ where: { id: parent.memberTypeId } }),
+    },
   },
 });
 
